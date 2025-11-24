@@ -12,6 +12,7 @@ QT_END_NAMESPACE
 class juego : public QMainWindow
 {
     Q_OBJECT
+    a;
 
 public:
     juego(QWidget *parent = nullptr);
