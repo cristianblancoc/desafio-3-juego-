@@ -10,10 +10,12 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    juego.cpp
+    juego.cpp \
+    spritesnivel1.cpp
 
 HEADERS += \
-    juego.h
+    juego.h \
+    spritesnivel1.h
 
 FORMS += \
     juego.ui
@@ -22,3 +24,9 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    fondo.qrc \
+    spritetan.qrc
+
+DISTFILES +=
