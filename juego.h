@@ -17,6 +17,8 @@ class juego : public QMainWindow
 public:
     juego(QWidget *parent = nullptr);
     ~juego();
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 public slots:
     void nuevaEscena();
@@ -31,6 +33,9 @@ private:
 
     QGraphicsPixmapItem *fondoScroll;
     int fondoOffset;
+    QGraphicsScene *escena;
+
+    void actualizarFondo();
 };
 
 #endif // JUEGO_H
