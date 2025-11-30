@@ -27,6 +27,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     fondo.qrc \
-    spritetan.qrc
+    spritetan.qrc \
+    spritetanqueataca.qrc
 
-DISTFILES +=
+DISTFILES += \
+    spritetanque atacando/tanquesprite.png \
+    spritetanque atacando/tanquesprite.png

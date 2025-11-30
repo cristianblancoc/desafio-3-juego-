@@ -1,10 +1,7 @@
 #include "juego.h"
 #include "ui_juego.h"
-#include "spritesnivel1.h"
-
-#include <QGraphicsScene>
+#include <QKeyEvent>
 #include <QDebug>
-#include <QResizeEvent>
 
 juego::juego(QWidget *parent)
     : QMainWindow(parent)
@@ -12,105 +9,63 @@ juego::juego(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // Crear escena
-    escena = new QGraphicsScene(this);
+    int ancho = ui->graphicsView->width();
+    int alto  = ui->graphicsView->height();
+
+    // --- ESCENA ---
+    escena = new QGraphicsScene(0, 0, ancho * 3, alto);
     ui->graphicsView->setScene(escena);
 
-    // Tamaño inicial del graphicsView
-    ancho = ui->graphicsView->width();
-    alto  = ui->graphicsView->height();
+    // --- FONDO ---
+    QPixmap fondo(":/paisaje/fondo3.png");
 
-    if (ancho < 100) ancho = 800;
-    if (alto < 100) alto = 600;
+    fondo = fondo.scaled(ancho * 3, alto,
+                         Qt::IgnoreAspectRatio,
+                         Qt::SmoothTransformation);
 
-    int anchoFondo = ancho * 3;
-
-    // === FONDO ===
-    QPixmap imagen(":/paisaje/fondo3.png");
-    QPixmap fondoEscalado = imagen.scaled(
-        anchoFondo,
-        alto,
-        Qt::IgnoreAspectRatio,
-        Qt::SmoothTransformation
-        );
-
-    fondoScroll = new QGraphicsPixmapItem(fondoEscalado);
+    fondoScroll = new QGraphicsPixmapItem(fondo);
     fondoScroll->setZValue(-1);
     escena->addItem(fondoScroll);
 
-    // Tamaño exacto de la escena
-    escena->setSceneRect(0, 0, ancho, alto);
+    // --- TANQUE ---
+    tanque = new spritesnivel1();
+    tanque->setPos(0, alto - 0);
+    tanque->setZValue(10);
+    escena->addItem(tanque);
 
-    // Mostrar fondo ajustado en el view
-    ui->graphicsView->fitInView(escena->sceneRect(), Qt::IgnoreAspectRatio);
+    // --- TECLAS ---
+    setFocusPolicy(Qt::StrongFocus);
+    ui->graphicsView->setFocusPolicy(Qt::NoFocus);
+    this->setFocus();
 
-    // === JUGADOR ===
-    spritesnivel1 *jug1 = new spritesnivel1(ui->graphicsView);
-    escena->addItem(jug1);
-    jug1->setPos(200, 200);
-    jug1->setFocus();
+    ui->graphicsView->centerOn(tanque);
+}
 
-    connect(jug1, &spritesnivel1::llegarBorde, this, &juego::nuevaEscena);
-    connect(jug1, &spritesnivel1::movDer, this, &juego::moverEscena);
+void juego::keyPressEvent(QKeyEvent *event)
+{
+    int speed = 10;
+
+    if (event->key() == Qt::Key_Left)
+        tanque->setX(tanque->x() - speed);
+
+    if (event->key() == Qt::Key_Right)
+        tanque->setX(tanque->x() + speed);
+
+    if (event->key() == Qt::Key_Up)
+        tanque->setY(tanque->y() - speed);
+
+    if (event->key() == Qt::Key_Down)
+        tanque->setY(tanque->y() + speed);
+
+    // Cambiar entre imagen normal y ataque
+    if (event->key() == Qt::Key_Space)
+        tanque->mostrarAtaque();
+
+    if (event->key() == Qt::Key_A)
+        tanque->mostrarNormal();
 }
 
 juego::~juego()
 {
     delete ui;
-}
-
-void juego::resizeEvent(QResizeEvent *event)
-{
-    QMainWindow::resizeEvent(event);
-
-    // Reescalamos el fondo cuando cambie el tamaño
-    actualizarFondo();
-
-    ui->graphicsView->fitInView(escena->sceneRect(), Qt::IgnoreAspectRatio);
-}
-
-void juego::actualizarFondo()
-{
-    // Tomar tamaño actual del graphicsView
-    ancho = ui->graphicsView->width();
-    alto  = ui->graphicsView->height();
-
-    if (ancho < 100) ancho = 800;
-    if (alto < 100) alto = 600;
-
-    int anchoFondo = ancho * 3;
-
-    // Volver a cargar y escalar el fondo
-    QPixmap imagen(":/paisaje/fondo3.png");
-    QPixmap fondoEscalado = imagen.scaled(
-        anchoFondo,
-        alto,
-        Qt::IgnoreAspectRatio,
-        Qt::SmoothTransformation
-        );
-
-    fondoScroll->setPixmap(fondoEscalado);
-
-    // Ajustamos tamaño de la escena
-    escena->setSceneRect(0, 0, ancho, alto);
-}
-
-void juego::nuevaEscena()
-{
-    fondoOffset = 0;
-}
-
-void juego::moverEscena()
-{
-    fondoOffset += 1;
-
-    if (fondoOffset >= ancho)
-        fondoOffset = 0;
-
-    fondoScroll->setPos(-fondoOffset, 0);
-}
-
-void juego::on_pushButton_clicked()
-{
-
 }

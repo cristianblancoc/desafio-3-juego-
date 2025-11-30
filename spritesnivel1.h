@@ -4,50 +4,23 @@
 #include <QObject>
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
-#include <QTimer>
-#include <QGraphicsView>
 
 class spritesnivel1 : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 
-private:
-    qreal x = 200;
-    qreal y = 200;
-
-    int spriteX = 0;
-    int spriteY = 0;
-    int spriteAncho = 60;
-    int spriteAlto = 60;
-
-    QPixmap hojaSprites;
-    QPixmap sprite;
-
-    int cont = 0;
-    QSize limites;
-
-    QTimer *timerMov;
-    int dx = 0;
-    int dy = 0;
-
-    QGraphicsView *vista;
-
 public:
-    explicit spritesnivel1(QGraphicsView *vista);
+    explicit spritesnivel1(QObject *parent = nullptr);
 
-    void keyPressEvent(QKeyEvent *event) override;
+    void mostrarNormal();
+    void mostrarAtaque();
 
-    void movimiento();
-    void configurarSprite(int dir);
+private:
+    QPixmap imgNormal;
+    QPixmap imgAtaque;
 
-public slots:
-    void movContinuo();
-
-signals:
-    void llegarBorde();
-    void movDer();
+    int anchoFinal = 150;
+    int altoFinal  = 100;
 };
 
 #endif // SPRITESNIVEL1_H
-
-

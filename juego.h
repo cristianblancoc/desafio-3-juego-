@@ -1,10 +1,12 @@
+
 #ifndef JUEGO_H
 #define JUEGO_H
 
 #include <QMainWindow>
-#include <QTimer>
-#include <QGraphicsView>
+#include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
+
+#include "spritesnivel1.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class juego; }
@@ -15,29 +17,19 @@ class juego : public QMainWindow
     Q_OBJECT
 
 public:
-    juego(QWidget *parent = nullptr);
+    explicit juego(QWidget *parent = nullptr);
     ~juego();
-protected:
-    void resizeEvent(QResizeEvent *event) override;
 
-public slots:
-    void nuevaEscena();
-    void moverEscena();
-    void on_pushButton_clicked();
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     Ui::juego *ui;
 
-    int alto;
-    int ancho;
-
-    QGraphicsPixmapItem *fondoScroll;
-    int fondoOffset;
     QGraphicsScene *escena;
+    QGraphicsPixmapItem *fondoScroll;
 
-    void actualizarFondo();
+    spritesnivel1 *tanque;
 };
 
 #endif // JUEGO_H
-
-
