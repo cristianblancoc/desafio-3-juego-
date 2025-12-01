@@ -1,4 +1,3 @@
-
 #ifndef JUEGO_H
 #define JUEGO_H
 
@@ -22,6 +21,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::juego *ui;
@@ -33,3 +33,4 @@ private:
 };
 
 #endif // JUEGO_H
+

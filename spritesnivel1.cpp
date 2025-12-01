@@ -4,20 +4,23 @@
 spritesnivel1::spritesnivel1(QObject *parent)
     : QObject(parent), QGraphicsPixmapItem()
 {
-    // Carga las dos imágenes
+    // Cargar las dos imágenes
     imgNormal = QPixmap(":/spritetanque/tanquesprite.png");
     imgAtaque = QPixmap(":/spritetanque atacando/tanquesprite.png");
 
     if (imgNormal.isNull())
-        qDebug() << "ERROR cargando tanque_normal.png";
+        qDebug() << "ERROR: no se pudo cargar tanque normal";
 
     if (imgAtaque.isNull())
-        qDebug() << "ERROR cargando tanque_atacando.png";
+        qDebug() << "ERROR: no se pudo cargar tanque ataque";
 
-    // Primera imagen visible
-    setPixmap(imgNormal.scaled(anchoFinal, altoFinal,
-                               Qt::KeepAspectRatio,
-                               Qt::SmoothTransformation));
+    // Sprite inicial
+    setPixmap(imgNormal.scaled(anchoFinal, altoFinal, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    // --- Timer automático para volver al estado normal ---
+    timerAtaque = new QTimer(this);
+    timerAtaque->setSingleShot(true);
+    connect(timerAtaque, &QTimer::timeout, this, &spritesnivel1::mostrarNormal);
 }
 
 void spritesnivel1::mostrarNormal()
@@ -32,4 +35,7 @@ void spritesnivel1::mostrarAtaque()
     setPixmap(imgAtaque.scaled(anchoFinal, altoFinal,
                                Qt::KeepAspectRatio,
                                Qt::SmoothTransformation));
+
+    timerAtaque->start(150); // vuelve solo
 }
+

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
+#include <QTimer>
 
 class spritesnivel1 : public QObject, public QGraphicsPixmapItem
 {
@@ -19,8 +20,10 @@ private:
     QPixmap imgNormal;
     QPixmap imgAtaque;
 
-    int anchoFinal = 150;
-    int altoFinal  = 100;
+    QTimer *timerAtaque;
+
+    int anchoFinal = 200;
+    int altoFinal  = 150;
 };
 
 #endif // SPRITESNIVEL1_H

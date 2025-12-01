@@ -18,10 +18,7 @@ juego::juego(QWidget *parent)
 
     // --- FONDO ---
     QPixmap fondo(":/paisaje/fondo3.png");
-
-    fondo = fondo.scaled(ancho * 3, alto,
-                         Qt::IgnoreAspectRatio,
-                         Qt::SmoothTransformation);
+    fondo = fondo.scaled(ancho * 3, alto, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     fondoScroll = new QGraphicsPixmapItem(fondo);
     fondoScroll->setZValue(-1);
@@ -29,14 +26,27 @@ juego::juego(QWidget *parent)
 
     // --- TANQUE ---
     tanque = new spritesnivel1();
-    tanque->setPos(0, alto - 0);
+    tanque->setPos(100, alto - 150);
     tanque->setZValue(10);
     escena->addItem(tanque);
 
-    // --- TECLAS ---
+    // --- FOCUS ---
     setFocusPolicy(Qt::StrongFocus);
     ui->graphicsView->setFocusPolicy(Qt::NoFocus);
-    this->setFocus();
+}
+
+void juego::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+
+    int ancho = ui->graphicsView->width();
+    int alto  = ui->graphicsView->height();
+
+    QPixmap fondo(":/paisaje/fondo3.png");
+    fondo = fondo.scaled(ancho * 3, alto, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    fondoScroll->setPixmap(fondo);
+    escena->setSceneRect(0, 0, ancho * 3, alto);
 
     ui->graphicsView->centerOn(tanque);
 }
@@ -45,27 +55,34 @@ void juego::keyPressEvent(QKeyEvent *event)
 {
     int speed = 10;
 
-    if (event->key() == Qt::Key_Left)
-        tanque->setX(tanque->x() - speed);
+    // Límites
+    int maxX = escena->width()  - tanque->pixmap().width();
+    int maxY = escena->height() - tanque->pixmap().height();
 
-    if (event->key() == Qt::Key_Right)
-        tanque->setX(tanque->x() + speed);
+    int x = tanque->x();
+    int y = tanque->y();
 
-    if (event->key() == Qt::Key_Up)
-        tanque->setY(tanque->y() - speed);
+    if (event->key() == Qt::Key_Left)  x -= speed;
+    if (event->key() == Qt::Key_Right) x += speed;
+    if (event->key() == Qt::Key_Up)    y -= speed;
+    if (event->key() == Qt::Key_Down)  y += speed;
 
-    if (event->key() == Qt::Key_Down)
-        tanque->setY(tanque->y() + speed);
+    // aplicar límites
+    if (x < 0) x = 0;
+    if (y < 0) y = 0;
+    if (x > maxX) x = maxX;
+    if (y > maxY) y = maxY;
 
-    // Cambiar entre imagen normal y ataque
+    tanque->setPos(x, y);
+
+    // Disparo
     if (event->key() == Qt::Key_Space)
         tanque->mostrarAtaque();
-
-    if (event->key() == Qt::Key_A)
-        tanque->mostrarNormal();
 }
 
 juego::~juego()
 {
     delete ui;
 }
+
+
