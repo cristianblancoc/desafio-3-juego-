@@ -9,6 +9,8 @@ PersonajeJugador::PersonajeJugador(QGraphicsItem *parent)
     , limiteSuelo(500.0f)
     , enElAire(false)
     , direccion(1)
+    , cooldownDisparo(20)
+    , contadorCooldown(0)
 {
 }
 
@@ -37,6 +39,11 @@ void PersonajeJugador::establecerFuerzaSalto(float valor)
     fuerzaSalto = valor;
 }
 
+void PersonajeJugador::establecerCooldownDisparo(int cuadros)
+{
+    cooldownDisparo = cuadros;
+}
+
 void PersonajeJugador::moverIzquierda()
 {
     velocidadX = -velocidadMovimiento;
@@ -63,12 +70,23 @@ void PersonajeJugador::saltar()
     enElAire = true;
 }
 
+int PersonajeJugador::obtenerDireccion() const
+{
+    return direccion;
+}
+
 void PersonajeJugador::actualizarMovimiento()
 {
     switch (modoMovimiento)
     {
     case ModoNivel1:
         actualizarModoNivel1();
+        break;
+    case ModoNivel2:
+        actualizarModoNivel2();
+        break;
+    case ModoNivel3:
+        actualizarModoNivel3();
         break;
     default:
         actualizarModoNivel1();
@@ -79,4 +97,53 @@ void PersonajeJugador::actualizarMovimiento()
 void PersonajeJugador::actualizarModoNivel1()
 {
     aplicarMovimiento();
+}
+
+void PersonajeJugador::actualizarModoNivel2()
+{
+    //Para nivel 2
+
+}
+
+void PersonajeJugador::actualizarModoNivel3()
+{
+    if (contadorCooldown > 0)
+        --contadorCooldown;
+
+    aplicarGravedad(0.6f);
+    aplicarMovimiento();
+
+    if (posicionY >= limiteSuelo)
+    {
+        posicionY = limiteSuelo;
+        velocidadY = 0.0f;
+        enElAire = false;
+        setPos(posicionX, posicionY);
+        if (hitboxAsociada)
+            hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+    }
+}
+
+bool PersonajeJugador::puedeDisparar() const
+{
+    if (modoMovimiento != ModoNivel3)
+        return false;
+
+    return contadorCooldown <= 0;
+}
+
+void PersonajeJugador::disparar()
+{
+    if (!puedeDisparar())
+        return;
+
+    contadorCooldown = cooldownDisparo;
+    float origenX = posicionX + 20.0f * direccion;
+    float origenY = posicionY + 20.0f;
+    emit proyectilDisparado(direccion, origenX, origenY);
+}
+
+void PersonajeJugador::establecerEnSuelo(bool enSuelo)
+{
+    enElAire = !enSuelo;
 }

@@ -10,7 +10,9 @@ class PersonajeJugador : public Entidad
 public:
     enum ModoMovimiento
     {
-        ModoNivel1 = 1
+        ModoNivel1 = 1,
+        ModoNivel2 = 2,
+        ModoNivel3 = 3
     };
 
     explicit PersonajeJugador(QGraphicsItem *parent = nullptr);
@@ -21,6 +23,7 @@ public:
     void establecerSueloY(float valor);
     void establecerVelocidadMovimiento(float valor);
     void establecerFuerzaSalto(float valor);
+    void establecerCooldownDisparo(int cuadros);
 
     void moverIzquierda();
     void moverDerecha();
@@ -28,6 +31,12 @@ public:
     void saltar();
 
     void actualizarMovimiento();
+
+    bool puedeDisparar() const;
+    void disparar();
+    int  obtenerDireccion() const;
+
+    void establecerEnSuelo(bool enSuelo);
 
 signals:
     void proyectilDisparado(int direccion, float x, float y);
@@ -39,8 +48,12 @@ private:
     float limiteSuelo;
     bool  enElAire;
     int   direccion;
+    int   cooldownDisparo;
+    int   contadorCooldown;
 
     void actualizarModoNivel1();
+    void actualizarModoNivel2();
+    void actualizarModoNivel3();
 };
 
 #endif // PERSONAJEJUGADOR_H
