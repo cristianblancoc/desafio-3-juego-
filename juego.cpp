@@ -29,8 +29,19 @@ juego::juego(QWidget *parent)
     tanque->setPos(100, alto - 150);
     tanque->setZValue(10);
     escena->addItem(tanque);
+    //AVIÓN ENEMIGO
+    enemigo = new avionenemigo();
+    enemigo->setZValue(20);
+    escena->addItem(enemigo);
+    // POSICIÓN FIJA EN LA PARTE DERECHA
+    enemigo->setPos( ui->graphicsView->viewport()->width() + 200, 120 );
 
-    // --- FOCUS ---
+    // TIMER PARA MOVER CÁMARA
+    timerUpdate = new QTimer(this);
+    connect(timerUpdate, &QTimer::timeout, this, &juego::actualizar);
+    timerUpdate->start(16);
+
+    //  FOCUS
     setFocusPolicy(Qt::StrongFocus);
     ui->graphicsView->setFocusPolicy(Qt::NoFocus);
 }
@@ -47,6 +58,14 @@ void juego::resizeEvent(QResizeEvent *event)
 
     fondoScroll->setPixmap(fondo);
     escena->setSceneRect(0, 0, ancho * 3, alto);
+
+    ui->graphicsView->centerOn(tanque);
+    enemigo->setPos(ui->graphicsView->viewport()->width() + 200, 120);
+
+}
+
+void juego::actualizar()
+{
 
     ui->graphicsView->centerOn(tanque);
 }
@@ -79,6 +98,7 @@ void juego::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Space)
         tanque->mostrarAtaque();
 }
+
 
 juego::~juego()
 {

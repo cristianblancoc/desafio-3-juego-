@@ -1,5 +1,6 @@
 #include "spritesnivel1.h"
 #include <QDebug>
+#include <QGraphicsScene>
 
 spritesnivel1::spritesnivel1(QObject *parent)
     : QObject(parent), QGraphicsPixmapItem()

@@ -9,11 +9,13 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    avionenemigo.cpp \
     main.cpp \
     juego.cpp \
     spritesnivel1.cpp
 
 HEADERS += \
+    avionenemigo.h \
     juego.h \
     spritesnivel1.h
 
@@ -27,6 +29,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     fondo.qrc \
+    spriteavionata.qrc \
+    spriteavionnormal.qrc \
     spritetan.qrc \
     spritetanqueataca.qrc
 

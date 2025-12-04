@@ -6,6 +6,7 @@
 #include <QGraphicsPixmapItem>
 
 #include "spritesnivel1.h"
+#include "avionenemigo.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class juego; }
@@ -19,6 +20,7 @@ public:
     explicit juego(QWidget *parent = nullptr);
     ~juego();
 
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
@@ -30,6 +32,11 @@ private:
     QGraphicsPixmapItem *fondoScroll;
 
     spritesnivel1 *tanque;
+    avionenemigo *enemigo;
+    QTimer *timerUpdate;
+private slots:
+    void actualizar();
+
 };
 
 #endif // JUEGO_H
