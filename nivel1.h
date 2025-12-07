@@ -8,6 +8,7 @@
 #include <QVector>
 #include <QStringList>
 #include <QGraphicsRectItem>
+#include <QGraphicsPixmapItem>
 #include <QGraphicsTextItem>
 #include <QTimer>
 #include <QKeyEvent>
@@ -36,15 +37,14 @@ private:
     void manejarColisionConSuelos();
     void verificarColisionObstaculo();
 
-    // Comandante / diálogos
     void verificarInteraccionComandante();
     void iniciarDialogoComandante();
     void avanzarDialogoComandante();
 
     Soldado *jugador;
     QVector<QGraphicsRectItem*> seccionesSuelo;
-    QGraphicsRectItem *zonaMeta;
-    QGraphicsRectItem *comandanteVisual;
+    QGraphicsPixmapItem *zonaMeta;
+    QGraphicsPixmapItem *comandanteVisual;
 
     QVector<Obstaculo*> obstaculos;
 

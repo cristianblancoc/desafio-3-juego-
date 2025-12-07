@@ -4,6 +4,7 @@
 #include "obstaculo.h"
 
 #include <QGraphicsRectItem>
+#include <QGraphicsPixmapItem>
 #include <QGraphicsTextItem>
 #include <QKeyEvent>
 #include <QFont>
@@ -68,49 +69,93 @@ void Nivel1::crearEscenario()
 {
     setSceneRect(0, 0, 800, 600);
 
-    QGraphicsRectItem *suelo = new QGraphicsRectItem(0, 550, 800, 50);
-    suelo->setBrush(Qt::darkGreen);
+    QGraphicsPixmapItem *fondo = new QGraphicsPixmapItem;
+    if (jugadorEsUcrania)
+        fondo->setPixmap(QPixmap(":/Sprite nivel1/Fondo nivel 1 Ukrania.png"));
+    else
+        fondo->setPixmap(QPixmap(":/Sprite nivel1/Fondo nivel1 Russia.png"));
+
+    fondo->setPixmap(
+        fondo->pixmap().scaled(830, 620, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        );
+
+    fondo->setPos(0, 0);
+    fondo->setZValue(-10);
+    addItem(fondo);
+
+    QGraphicsRectItem *suelo = new QGraphicsRectItem(0, 400, 800, 50);
+    suelo->setVisible(false);
     addItem(suelo);
     seccionesSuelo.append(suelo);
 
     const float width   = 40.0f;
     const float height  = 30.0f;
 
-    obstaculos.append(new Obstaculo(300.0f, 520.0f, width, height));
-    obstaculos.append(new Obstaculo(480.0f, 520.0f, width, height));
-    obstaculos.append(new Obstaculo(650.0f, 520.0f, width, height));
+    obstaculos.append(new Obstaculo(280.0f, 360.0f, width, height));
+    obstaculos.append(new Obstaculo(450.0f, 360.0f, width, height));
+    obstaculos.append(new Obstaculo(620.0f, 360.0f, width, height));
 
-    for (Obstaculo *o : obstaculos)
+    for (int i = 0; i < obstaculos.size(); ++i)
+    {
+        Obstaculo *o = obstaculos[i];
         addItem(o);
 
-    zonaMeta = new QGraphicsRectItem(740, 500, 40, 50);
-    zonaMeta->setBrush(Qt::blue);
-    addItem(zonaMeta);
+        QGraphicsPixmapItem *spriteMina = new QGraphicsPixmapItem(o);
+        spriteMina->setPixmap(QPixmap(":/Sprite nivel1/Mina.png"));
+        spriteMina->setPixmap(
+            spriteMina->pixmap().scaled(60, 60, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+            );
 
-    comandanteVisual = new QGraphicsRectItem(0, 0, 40, 60);
+        spriteMina->setPos(0, 0);
+    }
+
+
+    QGraphicsPixmapItem *tanque = new QGraphicsPixmapItem;
+
     if (jugadorEsUcrania)
-        comandanteVisual->setBrush(Qt::yellow);
+        tanque->setPixmap(QPixmap(":/Sprite nivel1/Tanque Ukrania.png"));
     else
-        comandanteVisual->setBrush(Qt::red);
+        tanque->setPixmap(QPixmap(":/Sprite nivel1/Tanque Russia.png"));
 
-    comandanteVisual->setPos(40, 490);
-    addItem(comandanteVisual);
+    tanque->setPixmap(
+        tanque->pixmap().scaled(120, 120, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        );
+
+    tanque->setPos(690, 310);
+    addItem(tanque);
+    zonaMeta = tanque;
+
+    QGraphicsPixmapItem *comandante = new QGraphicsPixmapItem;
+
+    if (jugadorEsUcrania)
+        comandante->setPixmap(QPixmap(":/Sprite nivel1/Comandante Ukrania.png"));
+    else
+        comandante->setPixmap(QPixmap(":/Sprite nivel1/Comandante Russia.png"));
+
+    comandante->setPixmap(
+        comandante->pixmap().scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        );
+
+    comandante->setPos(-10, 300);
+    addItem(comandante);
+    comandanteVisual = comandante;
 }
 
 void Nivel1::crearJugador()
 {
     jugador = new Soldado();
 
-    QPixmap spriteJugador(40, 60);
     if (jugadorEsUcrania)
-        spriteJugador.fill(Qt::yellow);
+        jugador->setPixmap(QPixmap(":/Sprite nivel1/Soldado Ukrania Estatico.png"));
     else
-        spriteJugador.fill(Qt::red);
+        jugador->setPixmap(QPixmap(":/Sprite nivel1/Soldado Russia Estatico.png"));
 
-    jugador->setPixmap(spriteJugador);
+    jugador->setPixmap(
+        jugador->pixmap().scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
+        );
 
-    jugador->establecerSueloY(500.0f);
-    jugador->establecerPosicion(120.0f, 500.0f);
+    jugador->establecerSueloY(310.0f);
+    jugador->establecerPosicion(120.0f, 300.0f);
     jugador->establecerVidaMaxima(100.0f);
     jugador->establecerVida(100.0f);
     jugador->establecerModoMovimiento(PersonajeJugador::ModoNivel1);
@@ -118,7 +163,7 @@ void Nivel1::crearJugador()
     jugador->establecerVelocidadMovimiento(4.5f);
     jugador->establecerFuerzaSalto(-20.0f);
 
-    Hitbox *hitboxJugador = new Hitbox(jugador, 40.0f, 60.0f);
+    Hitbox *hitboxJugador = new Hitbox(jugador, 40.0f, 75.0f);
     jugador->asignarHitbox(hitboxJugador);
 
     addItem(jugador);
@@ -157,6 +202,15 @@ void Nivel1::actualizarFrame()
         jugador->actualizarMovimiento();
         limitarEntidadEnX(jugador, 40.0f);
         manejarColisionConSuelos();
+
+        if (jugador->obtenerHitbox())
+            jugador->obtenerHitbox()->actualizarDesdeEntidad();
+    }
+
+    for (Obstaculo *obs : obstaculos)
+    {
+        if (obs && obs->obtenerHitbox())
+            obs->obtenerHitbox()->actualizarDesdeEntidad();
     }
 
     actualizarTiempo();
