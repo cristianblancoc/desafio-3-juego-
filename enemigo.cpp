@@ -41,7 +41,7 @@ void Enemigo::actualizarMovimientoBasico()
         setPos(posicionX, posicionY);
 
         if (hitboxAsociada)
-            hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+            hitboxAsociada->actualizarDesdeEntidad();
     }
 }
 

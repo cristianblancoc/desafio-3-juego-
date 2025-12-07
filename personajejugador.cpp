@@ -120,7 +120,7 @@ void PersonajeJugador::actualizarModoNivel3()
         enElAire = false;
         setPos(posicionX, posicionY);
         if (hitboxAsociada)
-            hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+            hitboxAsociada->actualizarDesdeEntidad();
     }
 }
 

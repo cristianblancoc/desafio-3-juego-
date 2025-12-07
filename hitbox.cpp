@@ -4,29 +4,42 @@
 Hitbox::Hitbox(Entidad *entidadPropietaria, float ancho, float alto)
     : QObject()
     , entidadPropietaria(entidadPropietaria)
-    , posicionX(0)
-    , posicionY(0)
     , anchoHitbox(ancho)
     , altoHitbox(alto)
 {
 }
 
-void Hitbox::actualizarPosicion(float nuevaPosX, float nuevaPosY)
+void Hitbox::actualizarDesdeEntidad()
 {
-    posicionX = nuevaPosX;
-    posicionY = nuevaPosY;
+    if (!entidadPropietaria)
+        return;
 }
 
-bool Hitbox::colisionaCon(const Hitbox *otraHitbox) const
+bool Hitbox::colisionaCon(const Hitbox *otra) const
 {
-    if (!otraHitbox)
+    if (!otra)
         return false;
-    return obtenerRectangulo().intersects(otraHitbox->obtenerRectangulo());
+
+    QRectF r1 = this->obtenerRectangulo();
+    QRectF r2 = otra->obtenerRectangulo();
+
+    return r1.intersects(r2);
 }
+
 
 QRectF Hitbox::obtenerRectangulo() const
 {
-    return QRectF(posicionX, posicionY, anchoHitbox, altoHitbox);
+    if (!entidadPropietaria)
+        return QRectF();
+
+    QPointF pos = entidadPropietaria->pos();
+
+    return QRectF(
+        pos.x(),
+        pos.y(),
+        anchoHitbox,
+        altoHitbox
+        );
 }
 
 Entidad* Hitbox::obtenerEntidadPropietaria() const

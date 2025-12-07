@@ -13,15 +13,13 @@ class Hitbox : public QObject
 public:
     Hitbox(Entidad *entidadPropietaria, float ancho, float alto);
 
-    void actualizarPosicion(float nuevaPosX, float nuevaPosY);
-    bool colisionaCon(const Hitbox *otraHitbox) const;
+    void actualizarDesdeEntidad();
+    bool colisionaCon(const Hitbox *otra) const;
     QRectF obtenerRectangulo() const;
     Entidad* obtenerEntidadPropietaria() const;
 
 private:
     Entidad *entidadPropietaria;
-    float posicionX;
-    float posicionY;
     float anchoHitbox;
     float altoHitbox;
 };

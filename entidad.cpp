@@ -24,7 +24,7 @@ void Entidad::establecerPosicion(float nuevaPosX, float nuevaPosY)
     setPos(posicionX, posicionY);
 
     if (hitboxAsociada)
-        hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+        hitboxAsociada->actualizarDesdeEntidad();
 }
 
 QPointF Entidad::obtenerPosicion() const
@@ -84,7 +84,7 @@ void Entidad::aplicarMovimiento()
     setPos(posicionX, posicionY);
 
     if (hitboxAsociada)
-        hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+        hitboxAsociada->actualizarDesdeEntidad();
 }
 
 void Entidad::aplicarGravedad(float valorGravedad)
@@ -97,7 +97,7 @@ void Entidad::asignarHitbox(Hitbox *nuevaHitbox)
     hitboxAsociada = nuevaHitbox;
 
     if (hitboxAsociada)
-        hitboxAsociada->actualizarPosicion(posicionX, posicionY);
+        hitboxAsociada->actualizarDesdeEntidad();
 }
 
 Hitbox* Entidad::obtenerHitbox() const
