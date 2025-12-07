@@ -3,11 +3,12 @@
 #include "Hitbox.h"
 #include "obstaculo.h"
 
-#include <QDebug>
-#include <QTimer>
 #include <QGraphicsRectItem>
 #include <QGraphicsTextItem>
+#include <QKeyEvent>
 #include <QFont>
+#include <QDebug>
+#include <QTimer>
 
 Nivel1::Nivel1(QObject *parent)
     : Nivel(1, parent)
@@ -53,6 +54,13 @@ void Nivel1::iniciarNivel()
     if (timerDialogoComandante)
         timerDialogoComandante->stop();
 
+    crearEscenario();
+    crearJugador();
+    crearUI();
+
+    prepararCuentaRegresiva(3);
+    tiempoRestanteFrames = 60 * 60;
+
     qDebug() << "Nivel 1 iniciado.";
 }
 
@@ -65,12 +73,12 @@ void Nivel1::crearEscenario()
     addItem(suelo);
     seccionesSuelo.append(suelo);
 
-    const float width = 40.0f;
-    const float height = 30.0f;
+    const float width   = 40.0f;
+    const float height  = 30.0f;
 
-    obstaculos.append(new Obstaculo(300, 520, width, height));
-    obstaculos.append(new Obstaculo(480, 520, width, height));
-    obstaculos.append(new Obstaculo(650, 520, width, height));
+    obstaculos.append(new Obstaculo(300.0f, 520.0f, width, height));
+    obstaculos.append(new Obstaculo(480.0f, 520.0f, width, height));
+    obstaculos.append(new Obstaculo(650.0f, 520.0f, width, height));
 
     for (Obstaculo *o : obstaculos)
         addItem(o);
@@ -80,7 +88,11 @@ void Nivel1::crearEscenario()
     addItem(zonaMeta);
 
     comandanteVisual = new QGraphicsRectItem(0, 0, 40, 60);
-    comandanteVisual->setBrush(jugadorEsUcrania ? Qt::yellow : Qt::red);
+    if (jugadorEsUcrania)
+        comandanteVisual->setBrush(Qt::yellow);
+    else
+        comandanteVisual->setBrush(Qt::red);
+
     comandanteVisual->setPos(40, 490);
     addItem(comandanteVisual);
 }
@@ -90,18 +102,23 @@ void Nivel1::crearJugador()
     jugador = new Soldado();
 
     QPixmap spriteJugador(40, 60);
-    spriteJugador.fill(jugadorEsUcrania ? Qt::yellow : Qt::red);
+    if (jugadorEsUcrania)
+        spriteJugador.fill(Qt::yellow);
+    else
+        spriteJugador.fill(Qt::red);
+
     jugador->setPixmap(spriteJugador);
 
-    jugador->establecerSueloY(500);
-    jugador->establecerPosicion(120, 500);
-    jugador->establecerVidaMaxima(100);
-    jugador->establecerVida(100);
+    jugador->establecerSueloY(500.0f);
+    jugador->establecerPosicion(120.0f, 500.0f);
+    jugador->establecerVidaMaxima(100.0f);
+    jugador->establecerVida(100.0f);
     jugador->establecerModoMovimiento(PersonajeJugador::ModoNivel1);
-    jugador->establecerVelocidadMovimiento(4.5f);
-    jugador->establecerFuerzaSalto(-20);
 
-    Hitbox *hitboxJugador = new Hitbox(jugador, 40, 60);
+    jugador->establecerVelocidadMovimiento(4.5f);
+    jugador->establecerFuerzaSalto(-20.0f);
+
+    Hitbox *hitboxJugador = new Hitbox(jugador, 40.0f, 60.0f);
     jugador->asignarHitbox(hitboxJugador);
 
     addItem(jugador);
@@ -110,15 +127,18 @@ void Nivel1::crearJugador()
 void Nivel1::crearUI()
 {
     textoComandante = new QGraphicsTextItem;
-    textoComandante->setFont(QFont("Arial", 18, QFont::Bold));
+    QFont fuente("Arial", 18, QFont::Bold);
+    textoComandante->setFont(fuente);
     textoComandante->setDefaultTextColor(Qt::blue);
     textoComandante->setPos(50, 50);
     textoComandante->setPlainText(
-        "Acércate al comandante para recibir instrucciones.");
+        "Acércate al comandante para recibir instrucciones."
+        );
     addItem(textoComandante);
 
     textoTiempo = new QGraphicsTextItem;
-    textoTiempo->setFont(QFont("Arial", 16, QFont::Bold));
+    QFont fuenteTiempo("Arial", 16, QFont::Bold);
+    textoTiempo->setFont(fuenteTiempo);
     textoTiempo->setDefaultTextColor(Qt::darkRed);
     textoTiempo->setPos(600, 20);
     textoTiempo->setPlainText("Tiempo: 60");
@@ -127,6 +147,11 @@ void Nivel1::crearUI()
 
 void Nivel1::actualizarFrame()
 {
+    actualizarCuentaRegresiva();
+
+    if (!estaEnCombate())
+        return;
+
     if (jugador && !jugador->estaMuerta())
     {
         jugador->actualizarMovimiento();
@@ -153,7 +178,136 @@ void Nivel1::actualizarTiempo()
         textoTiempo->setPlainText(QString("Tiempo: %1").arg(segundos));
 
     if (tiempoRestanteFrames <= 0)
+    {
         marcarDerrota();
+        qDebug() << "Nivel 1 perdido por tiempo.";
+    }
+}
+
+void Nivel1::verificarCaida()
+{
+    if (!jugador || jugador->estaMuerta())
+        return;
+
+    QPointF pos = jugador->obtenerPosicion();
+    if (pos.y() > 600)
+    {
+        marcarDerrota();
+        qDebug() << "Nivel 1 perdido: el jugador cayó al vacío.";
+    }
+}
+
+void Nivel1::verificarVictoria()
+{
+    if (!jugador || jugador->estaMuerta())
+        return;
+
+    if (!zonaMeta)
+        return;
+
+    // Solo se puede ganar si ya se completó el diálogo con el comandante
+    if (!dialogoCompletado)
+        return;
+
+    if (zonaMeta->collidesWithItem(jugador))
+    {
+        marcarVictoria();
+        qDebug() << "Nivel 1 completado: el jugador llegó a la zona azul después del briefing.";
+    }
+}
+
+void Nivel1::verificarColisionObstaculo()
+{
+    if (!jugador || jugador->estaMuerta())
+        return;
+
+    Hitbox *hbJugador = jugador->obtenerHitbox();
+    if (!hbJugador)
+        return;
+
+    for (Obstaculo *obs : obstaculos)
+    {
+        if (!obs)
+            continue;
+
+        Hitbox *hbObstaculo = obs->obtenerHitbox();
+        if (!hbObstaculo)
+            continue;
+
+        if (hbJugador->colisionaCon(hbObstaculo))
+        {
+            marcarDerrota();
+            qDebug() << "Nivel 1 perdido: el jugador tocó un obstáculo.";
+            return;
+        }
+    }
+}
+
+void Nivel1::verificarInteraccionComandante()
+{
+    if (!jugador || jugador->estaMuerta())
+        return;
+    if (!comandanteVisual)
+        return;
+    if (dialogoCompletado)
+        return;
+    if (dialogoIniciado)
+        return;
+
+    if (jugador->collidesWithItem(comandanteVisual))
+    {
+        qDebug() << "Jugador llegó al comandante -> iniciando diálogo";
+        iniciarDialogoComandante();
+    }
+}
+
+void Nivel1::iniciarDialogoComandante()
+{
+    dialogoIniciado = true;
+    dialogoCompletado = false;
+    lineasDialogo.clear();
+    indiceDialogo = 0;
+
+    lineasDialogo << "Comandante:\nHola, soldado."
+                  << "Comandante:\n¿Estás listo para la misión?\n"
+                     "Debes saltar las cajas y llegar a la zona azul para continuar.";
+
+    if (!textoComandante)
+    {
+        textoComandante = new QGraphicsTextItem;
+        QFont fuente("Arial", 18, QFont::Bold);
+        textoComandante->setFont(fuente);
+        textoComandante->setDefaultTextColor(Qt::blue);
+        textoComandante->setPos(50, 50);
+        addItem(textoComandante);
+    }
+
+    textoComandante->setPlainText(lineasDialogo[indiceDialogo]);
+
+    if (timerDialogoComandante)
+        timerDialogoComandante->start(2000);
+}
+
+void Nivel1::avanzarDialogoComandante()
+{
+    if (!dialogoIniciado)
+        return;
+
+    ++indiceDialogo;
+
+    if (indiceDialogo < lineasDialogo.size())
+    {
+        textoComandante->setPlainText(lineasDialogo[indiceDialogo]);
+    }
+    else
+    {
+        timerDialogoComandante->stop();
+        dialogoIniciado = false;
+        dialogoCompletado = true;
+
+        textoComandante->setPlainText("Comandante:\n¡Ve a la zona azul, soldado!");
+        qDebug() << "Diálogo con el comandante completado.";
+    }
 }
 
 void Nivel1::manejarColisionConSuelos()
@@ -170,19 +324,80 @@ void Nivel1::manejarColisionConSuelos()
 
     for (QGraphicsRectItem *suelo : seccionesSuelo)
     {
+        if (!suelo)
+            continue;
+
         QRectF rectSuelo = suelo->rect().translated(suelo->pos());
 
         if (rectJugador.intersects(rectSuelo))
         {
-            pos.setY(rectSuelo.top() - alturaJugador);
-            jugador->establecerPosicion(pos.x(), pos.y());
-            jugador->establecerVelocidad(jugador->obtenerVelocidadX(), 0.0f);
-            jugador->establecerEnSuelo(true);
-            apoyado = true;
-            break;
+            if (jugador->obtenerVelocidadY() >= 0 &&
+                rectJugador.bottom() >= rectSuelo.top() &&
+                rectJugador.bottom() <= rectSuelo.top() + 25)
+            {
+                pos.setY(rectSuelo.top() - alturaJugador);
+                jugador->establecerPosicion(pos.x(), pos.y());
+                jugador->establecerVelocidad(jugador->obtenerVelocidadX(), 0.0f);
+                apoyado = true;
+                jugador->establecerEnSuelo(true);
+                break;
+            }
         }
     }
 
-    if (!apoyado)
+    if (!apoyado && pos.y() < 600)
         jugador->aplicarGravedad(0.5f);
+}
+
+void Nivel1::procesarTeclaPresionada(QKeyEvent *eventoTecla)
+{
+    if (!jugador || jugador->estaMuerta())
+        return;
+
+    if (!estaEnCombate())
+        return;
+
+    switch (eventoTecla->key())
+    {
+    case Qt::Key_A:
+    case Qt::Key_Left:
+        jugador->moverIzquierda();
+        break;
+
+    case Qt::Key_D:
+    case Qt::Key_Right:
+        jugador->moverDerecha();
+        break;
+
+    case Qt::Key_W:
+    case Qt::Key_Up:
+    case Qt::Key_Space:
+        jugador->saltar();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void Nivel1::procesarTeclaLiberada(QKeyEvent *eventoTecla)
+{
+    if (!jugador)
+        return;
+
+    if (!estaEnCombate())
+        return;
+
+    switch (eventoTecla->key())
+    {
+    case Qt::Key_A:
+    case Qt::Key_Left:
+    case Qt::Key_D:
+    case Qt::Key_Right:
+        jugador->detenerMovimientoHorizontal();
+        break;
+
+    default:
+        break;
+    }
 }
