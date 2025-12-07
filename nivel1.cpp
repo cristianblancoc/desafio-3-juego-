@@ -124,3 +124,65 @@ void Nivel1::crearUI()
     textoTiempo->setPlainText("Tiempo: 60");
     addItem(textoTiempo);
 }
+
+void Nivel1::actualizarFrame()
+{
+    if (jugador && !jugador->estaMuerta())
+    {
+        jugador->actualizarMovimiento();
+        limitarEntidadEnX(jugador, 40.0f);
+        manejarColisionConSuelos();
+    }
+
+    actualizarTiempo();
+    verificarCaida();
+    verificarColisionObstaculo();
+    verificarInteraccionComandante();
+    verificarVictoria();
+}
+
+void Nivel1::actualizarTiempo()
+{
+    if (tiempoRestanteFrames <= 0)
+        return;
+
+    --tiempoRestanteFrames;
+    int segundos = tiempoRestanteFrames / 60;
+
+    if (textoTiempo)
+        textoTiempo->setPlainText(QString("Tiempo: %1").arg(segundos));
+
+    if (tiempoRestanteFrames <= 0)
+        marcarDerrota();
+}
+
+void Nivel1::manejarColisionConSuelos()
+{
+    if (!jugador)
+        return;
+
+    QRectF rectJugador = jugador->boundingRect().translated(jugador->pos());
+    float alturaJugador = rectJugador.height();
+    QPointF pos = jugador->obtenerPosicion();
+    bool apoyado = false;
+
+    jugador->establecerEnSuelo(false);
+
+    for (QGraphicsRectItem *suelo : seccionesSuelo)
+    {
+        QRectF rectSuelo = suelo->rect().translated(suelo->pos());
+
+        if (rectJugador.intersects(rectSuelo))
+        {
+            pos.setY(rectSuelo.top() - alturaJugador);
+            jugador->establecerPosicion(pos.x(), pos.y());
+            jugador->establecerVelocidad(jugador->obtenerVelocidadX(), 0.0f);
+            jugador->establecerEnSuelo(true);
+            apoyado = true;
+            break;
+        }
+    }
+
+    if (!apoyado)
+        jugador->aplicarGravedad(0.5f);
+}
