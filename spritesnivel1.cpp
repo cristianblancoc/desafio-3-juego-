@@ -39,4 +39,15 @@ void spritesnivel1::mostrarAtaque()
 
     timerAtaque->start(150); // vuelve solo
 }
+void spritesnivel1::recibirDanio(int d)
+{
+    vida -= d;
+    if (vida < 0) vida = 0;
+
+    qDebug() << "TANQUE VIDA =" << vida;
+
+    if (vida == 0)
+        hide();
+}
+
 

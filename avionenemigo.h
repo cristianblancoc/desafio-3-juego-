@@ -18,9 +18,14 @@ public:
     void mostrarAtaque();
 
     void recibirDanio(int dano);
+    int vida = 250;
+    int vidaMax = 250;
+  ;
 
 private slots:
     void volverNormal();
+    void moverVertical();
+    void intentarDisparar();
 
 private:
     QPixmap imgNormal;
@@ -28,12 +33,19 @@ private:
 
     QTimer *timerAtaque;
 
+    QTimer *timerMovimiento;
+    QTimer *timerDisparo;
+
     // Barra de vida
     QGraphicsRectItem *barraFondo;
     QGraphicsRectItem *barraVida;
 
-    int vidaMax = 100;
-    int vida = 100;
+
+    // Movimiento vertical
+    bool subiendo = true;
+    int velocidad = 2;
+    int limiteSuperior = 40;
+    int limiteInferior = 600;
 };
 
 #endif // AVIONENEMIGO_H

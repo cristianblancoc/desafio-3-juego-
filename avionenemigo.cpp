@@ -4,7 +4,7 @@
 
 avionenemigo::avionenemigo(QObject *parent)
     : QObject(parent), QGraphicsPixmapItem()
-{
+    {
     // Cargar imágenes
     imgNormal.load(":/avionenemigo/avionenemi.png");
     imgAtaque.load(":/spritedeavionataque/avionataque.png");
@@ -19,6 +19,15 @@ avionenemigo::avionenemigo(QObject *parent)
     timerAtaque = new QTimer(this);
     timerAtaque->setSingleShot(true);
     connect(timerAtaque, &QTimer::timeout, this, &avionenemigo::volverNormal);
+    // Movimiento vertical
+    timerMovimiento = new QTimer(this);
+    connect(timerMovimiento, &QTimer::timeout, this, &avionenemigo::moverVertical);
+    timerMovimiento->start(10);
+
+    // Disparo aleatorio
+    timerDisparo = new QTimer(this);
+    connect(timerDisparo, &QTimer::timeout, this, &avionenemigo::intentarDisparar);
+    timerDisparo->start(500);   // Cada 0.5s decide si dispara
 
     // Barra de vida
     barraFondo = new QGraphicsRectItem(this);
@@ -66,10 +75,41 @@ void avionenemigo::volverNormal()
 {
     setPixmap(imgNormal);
 }
+void avionenemigo::moverVertical()
+{
+    if (!scene()) return;
 
-// -------------------------------
+    if (subiendo)
+        setY(y() - velocidad);
+    else
+        setY(y() + velocidad);
+
+    if (y() <= limiteSuperior)
+        subiendo = false;
+
+    if (y() >= limiteInferior)
+        subiendo = true;
+}
+
+
+
+// DISPARO ALEATORIO
+
+void avionenemigo::intentarDisparar()
+{
+    int prob = rand() % 100;
+
+    if (prob < 10)  // 10%
+    {
+        mostrarAtaque();
+        qDebug() << "El avión enemigo dispara!";
+
+
+    }
+}
+
+
 // Daño
-// -------------------------------
 void avionenemigo::recibirDanio(int dano)
 {
     vida -= dano;
@@ -78,7 +118,8 @@ void avionenemigo::recibirDanio(int dano)
     float porcentaje = (float)vida / vidaMax;
     barraVida->setRect(0, 0, 120 * porcentaje, 10);
 
+    qDebug() << "AVION VIDA =" << vida;
+
     if (vida == 0)
         hide();
 }
-

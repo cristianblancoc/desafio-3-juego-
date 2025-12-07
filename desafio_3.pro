@@ -12,11 +12,13 @@ SOURCES += \
     avionenemigo.cpp \
     main.cpp \
     juego.cpp \
+    proyectil.cpp \
     spritesnivel1.cpp
 
 HEADERS += \
     avionenemigo.h \
     juego.h \
+    proyectil.h \
     spritesnivel1.h
 
 FORMS += \

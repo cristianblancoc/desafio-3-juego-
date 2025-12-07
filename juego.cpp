@@ -12,11 +12,11 @@ juego::juego(QWidget *parent)
     int ancho = ui->graphicsView->width();
     int alto  = ui->graphicsView->height();
 
-    // --- ESCENA ---
+    //  ESCENA
     escena = new QGraphicsScene(0, 0, ancho * 3, alto);
     ui->graphicsView->setScene(escena);
 
-    // --- FONDO ---
+    //  FONDO
     QPixmap fondo(":/paisaje/fondo3.png");
     fondo = fondo.scaled(ancho * 3, alto, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
@@ -24,7 +24,7 @@ juego::juego(QWidget *parent)
     fondoScroll->setZValue(-1);
     escena->addItem(fondoScroll);
 
-    // --- TANQUE ---
+    //  TANQUE
     tanque = new spritesnivel1();
     tanque->setPos(100, alto - 150);
     tanque->setZValue(10);
@@ -86,7 +86,7 @@ void juego::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_Up)    y -= speed;
     if (event->key() == Qt::Key_Down)  y += speed;
 
-    // aplicar límites
+    //  límites
     if (x < 0) x = 0;
     if (y < 0) y = 0;
     if (x > maxX) x = maxX;
@@ -96,7 +96,17 @@ void juego::keyPressEvent(QKeyEvent *event)
 
     // Disparo
     if (event->key() == Qt::Key_Space)
+    {
         tanque->mostrarAtaque();
+
+        proyectil *b = new proyectil(true, 50); // daño 50
+
+        // posición delante del tanque
+        b->setPos(tanque->x() + tanque->pixmap().width(), tanque->y() + tanque->pixmap().height()/2);
+
+        escena->addItem(b);
+    }
+
 }
 
 

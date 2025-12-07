@@ -7,6 +7,8 @@
 
 #include "spritesnivel1.h"
 #include "avionenemigo.h"
+#include "proyectil.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class juego; }

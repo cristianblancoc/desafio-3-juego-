@@ -16,6 +16,10 @@ public:
     void mostrarNormal();
     void mostrarAtaque();
 
+    int vida = 150;
+    void recibirDanio(int d);
+
+
 private:
     QPixmap imgNormal;
     QPixmap imgAtaque;
