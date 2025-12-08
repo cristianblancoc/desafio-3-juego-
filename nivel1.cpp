@@ -24,6 +24,8 @@ Nivel1::Nivel1(QObject *parent)
     , dialogoIniciado(false)
     , dialogoCompletado(false)
     , jugadorEsUcrania(true)
+    , panelDialogo(nullptr)
+    , iconoTiempoUI(nullptr)
 {
     timerDialogoComandante = new QTimer(this);
     connect(timerDialogoComandante, &QTimer::timeout,
@@ -46,6 +48,8 @@ void Nivel1::iniciarNivel()
     obstaculos.clear();
     textoComandante = nullptr;
     textoTiempo = nullptr;
+    panelDialogo = nullptr;
+    iconoTiempoUI = nullptr;
 
     lineasDialogo.clear();
     indiceDialogo = 0;
@@ -70,6 +74,7 @@ void Nivel1::crearEscenario()
     setSceneRect(0, 0, 800, 600);
 
     QGraphicsPixmapItem *fondo = new QGraphicsPixmapItem;
+
     if (jugadorEsUcrania)
         fondo->setPixmap(QPixmap(":/Sprite nivel1/Fondo nivel 1 Ukrania.png"));
     else
@@ -146,13 +151,25 @@ void Nivel1::crearJugador()
     jugador = new Soldado();
 
     if (jugadorEsUcrania)
-        jugador->setPixmap(QPixmap(":/Sprite nivel1/Soldado Ukrania Estatico.png"));
+    {
+        jugador->establecerSprites(
+            ":/Sprite nivel1/Soldado Ukrania Estatico.png",
+            ":/Sprite nivel1/Soldado Ukrania Corriendo derecha.png",
+            ":/Sprite nivel1/Soldado Ukrania Corriendo izquierda.png",
+            ":/Sprite nivel1/Soldado Ukrania Saltando derecha.png",
+            ":/Sprite nivel1/Soldado Ukrania Saltando izquierda.png"
+            );
+    }
     else
-        jugador->setPixmap(QPixmap(":/Sprite nivel1/Soldado Russia Estatico.png"));
-
-    jugador->setPixmap(
-        jugador->pixmap().scaled(100, 100, Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
-        );
+    {
+        jugador->establecerSprites(
+            ":/Sprite nivel1/Soldado Russia Estatico.png",
+            ":/Sprite nivel1/Soldado Russia Corriendo Derecha.png",
+            ":/Sprite nivel1/Soldado Russia Corriendo Izquierda.png",
+            ":/Sprite nivel1/Soldado Russia Saltando Derecha.png",
+            ":/Sprite nivel1/Soldado Russia Saltando Izquierda.png"
+            );
+    }
 
     jugador->establecerSueloY(310.0f);
     jugador->establecerPosicion(120.0f, 300.0f);
@@ -171,22 +188,40 @@ void Nivel1::crearJugador()
 
 void Nivel1::crearUI()
 {
-    textoComandante = new QGraphicsTextItem;
-    QFont fuente("Arial", 18, QFont::Bold);
+    panelDialogo = new QGraphicsPixmapItem;
+    panelDialogo->setPixmap(
+        QPixmap(":/Sprite nivel1/Mensaje.png")
+            .scaled(600, 200, Qt::IgnoreAspectRatio, Qt::FastTransformation)
+    );
+    panelDialogo->setPos(10,-10);
+    panelDialogo->setZValue(5);
+    addItem(panelDialogo);
+
+    textoComandante = new QGraphicsTextItem(panelDialogo);
+    QFont fuente("Arial", 12, QFont::Bold);
     textoComandante->setFont(fuente);
-    textoComandante->setDefaultTextColor(Qt::blue);
-    textoComandante->setPos(50, 50);
+    textoComandante->setDefaultTextColor(Qt::white);
+    textoComandante->setTextWidth(630);
+    textoComandante->setPos(65, 65);
     textoComandante->setPlainText(
         "Acércate al comandante para recibir instrucciones."
         );
-    addItem(textoComandante);
 
-    textoTiempo = new QGraphicsTextItem;
-    QFont fuenteTiempo("Arial", 16, QFont::Bold);
+    iconoTiempoUI = new QGraphicsPixmapItem;
+    iconoTiempoUI->setPixmap(
+        QPixmap(":/Sprite nivel1/Tiempo.png")
+            .scaled(80, 100, Qt::IgnoreAspectRatio, Qt::FastTransformation)
+    );
+    iconoTiempoUI->setPos(690, 10);
+    iconoTiempoUI->setZValue(5);
+    addItem(iconoTiempoUI);
+
+    textoTiempo = new QGraphicsTextItem(iconoTiempoUI);
+    QFont fuenteTiempo("Arial", 18, QFont::Bold);
     textoTiempo->setFont(fuenteTiempo);
-    textoTiempo->setDefaultTextColor(Qt::darkRed);
-    textoTiempo->setPos(600, 20);
-    textoTiempo->setPlainText("Tiempo: 60");
+    textoTiempo->setDefaultTextColor(Qt::black);
+    textoTiempo->setPos(23, 30);
+    textoTiempo->setPlainText("60");
     addItem(textoTiempo);
 }
 
@@ -229,7 +264,7 @@ void Nivel1::actualizarTiempo()
     int segundos = tiempoRestanteFrames / 60;
 
     if (textoTiempo)
-        textoTiempo->setPlainText(QString("Tiempo: %1").arg(segundos));
+        textoTiempo->setPlainText(QString("%1").arg(segundos));
 
     if (tiempoRestanteFrames <= 0)
     {
@@ -259,14 +294,13 @@ void Nivel1::verificarVictoria()
     if (!zonaMeta)
         return;
 
-    // Solo se puede ganar si ya se completó el diálogo con el comandante
     if (!dialogoCompletado)
         return;
 
     if (zonaMeta->collidesWithItem(jugador))
     {
         marcarVictoria();
-        qDebug() << "Nivel 1 completado: el jugador llegó a la zona azul después del briefing.";
+        qDebug() << "Nivel 1 completado: el jugador llegó al tanque después de pasar las minas.";
     }
 }
 
@@ -291,7 +325,7 @@ void Nivel1::verificarColisionObstaculo()
         if (hbJugador->colisionaCon(hbObstaculo))
         {
             marcarDerrota();
-            qDebug() << "Nivel 1 perdido: el jugador tocó un obstáculo.";
+            qDebug() << "Nivel 1 perdido: el jugador tocó una mina.";
             return;
         }
     }
@@ -324,15 +358,16 @@ void Nivel1::iniciarDialogoComandante()
 
     lineasDialogo << "Comandante:\nHola, soldado."
                   << "Comandante:\n¿Estás listo para la misión?\n"
-                     "Debes saltar las cajas y llegar a la zona azul para continuar.";
+                     "Debes saltar las minas y llegar al tanque para llegar al siguiente nivel.\n"
+                     "Debes luchar por tu pais, vamos con todo soldado";
 
     if (!textoComandante)
     {
-        textoComandante = new QGraphicsTextItem;
-        QFont fuente("Arial", 18, QFont::Bold);
+        textoComandante = new QGraphicsTextItem(panelDialogo);
+        QFont fuente("Arial", 14, QFont::Bold);
         textoComandante->setFont(fuente);
-        textoComandante->setDefaultTextColor(Qt::blue);
-        textoComandante->setPos(50, 50);
+        textoComandante->setDefaultTextColor(Qt::white);
+        textoComandante->setPos(20, 15);
         addItem(textoComandante);
     }
 
@@ -359,7 +394,7 @@ void Nivel1::avanzarDialogoComandante()
         dialogoIniciado = false;
         dialogoCompletado = true;
 
-        textoComandante->setPlainText("Comandante:\n¡Ve a la zona azul, soldado!");
+        textoComandante->setPlainText("Comandante:\n¡Ve al tanque, soldado!");
         qDebug() << "Diálogo con el comandante completado.";
     }
 }

@@ -60,6 +60,9 @@ private:
     bool dialogoCompletado;
 
     bool jugadorEsUcrania;
+
+    QGraphicsPixmapItem *panelDialogo;
+    QGraphicsPixmapItem *iconoTiempoUI;
 };
 
 #endif // NIVEL1_H
