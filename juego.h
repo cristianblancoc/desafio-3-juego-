@@ -7,8 +7,7 @@
 
 #include "spritesnivel1.h"
 #include "avionenemigo.h"
-#include "proyectil.h"
-
+#include "Explosion.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class juego; }
@@ -21,25 +20,27 @@ class juego : public QMainWindow
 public:
     explicit juego(QWidget *parent = nullptr);
     ~juego();
-
-
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+
 
 private:
     Ui::juego *ui;
 
     QGraphicsScene *escena;
-    QGraphicsPixmapItem *fondoScroll;
-
+    QGraphicsPixmapItem *fondo;
     spritesnivel1 *tanque;
-    avionenemigo *enemigo;
-    QTimer *timerUpdate;
+
+    avionenemigo *avion1;
+    avionenemigo *avion2;
+    avionenemigo *avion3;
+     void revisarMuertes();
+    QGraphicsPixmapItem *finalNivel;
+    bool nivelTerminado = false;
 private slots:
     void actualizar();
 
-};
 
+};
 #endif // JUEGO_H
 

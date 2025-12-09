@@ -5,25 +5,24 @@
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
 #include <QTimer>
+#include "Explosion.h"
 
 class spritesnivel1 : public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
-
 public:
     explicit spritesnivel1(QObject *parent = nullptr);
 
     void mostrarNormal();
     void mostrarAtaque();
-
-    int vida = 150;
     void recibirDanio(int d);
 
+    int vida = 150;
+    int vidaMax = 300;
 
 private:
     QPixmap imgNormal;
     QPixmap imgAtaque;
-
     QTimer *timerAtaque;
 
     int anchoFinal = 200;

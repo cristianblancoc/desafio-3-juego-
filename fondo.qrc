@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>paisaje/fondo3.png</file>
+        <file>paisaje/Fondo_Nivel2.png</file>
+        <file>paisaje/casasdestruidas.png</file>
     </qresource>
 </RCC>

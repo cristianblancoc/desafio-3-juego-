@@ -1,64 +1,43 @@
 #include "avionenemigo.h"
-#include <QBrush>
 #include <QGraphicsScene>
 
 avionenemigo::avionenemigo(QObject *parent)
     : QObject(parent), QGraphicsPixmapItem()
-    {
+{
     // Cargar imágenes
     imgNormal.load(":/avionenemigo/avionenemi.png");
     imgAtaque.load(":/spritedeavionataque/avionataque.png");
 
-    // Escalar a tamaño correcto
     imgNormal = imgNormal.scaledToHeight(150, Qt::SmoothTransformation);
     imgAtaque = imgAtaque.scaledToHeight(170, Qt::SmoothTransformation);
 
     setPixmap(imgNormal);
 
-    // Timer ataque
+    // Timer de ataque
     timerAtaque = new QTimer(this);
     timerAtaque->setSingleShot(true);
     connect(timerAtaque, &QTimer::timeout, this, &avionenemigo::volverNormal);
+
     // Movimiento vertical
     timerMovimiento = new QTimer(this);
     connect(timerMovimiento, &QTimer::timeout, this, &avionenemigo::moverVertical);
     timerMovimiento->start(10);
 
-    // Disparo aleatorio
+    // Disparo
     timerDisparo = new QTimer(this);
     connect(timerDisparo, &QTimer::timeout, this, &avionenemigo::intentarDisparar);
-    timerDisparo->start(500);   // Cada 0.5s decide si dispara
+    timerDisparo->start(500);
 
     // Barra de vida
     barraFondo = new QGraphicsRectItem(this);
     barraVida  = new QGraphicsRectItem(barraFondo);
 
-    barraFondo->setRect(0, -20, 120, 10);
-    barraFondo->setBrush(QBrush(Qt::black));
 
     barraVida->setRect(0, 0, 120, 10);
     barraVida->setBrush(QBrush(Qt::green));
-
-    barraFondo->setZValue(2);
-    barraVida->setZValue(3);
 }
 
-
-// INICIAR POSICIÓN
-
-void avionenemigo::iniciarPosicionEnEscena()
-{
-    if (!scene()) return;
-
-    // borde derecho del rectángulo real de la escena
-    int x = scene()->sceneRect().right() - pixmap().width() - 10;
-    int y = 100;
-
-    setPos(x, y);
-}
-
-
-// Cambiar sprite
+//  ESTADO
 
 void avionenemigo::mostrarNormal()
 {
@@ -75,51 +54,76 @@ void avionenemigo::volverNormal()
 {
     setPixmap(imgNormal);
 }
-void avionenemigo::moverVertical()
+
+// FUNCIONES DE CONTROL
+
+void avionenemigo::activarDisparo(bool v)
 {
-    if (!scene()) return;
-
-    if (subiendo)
-        setY(y() - velocidad);
-    else
-        setY(y() + velocidad);
-
-    if (y() <= limiteSuperior)
-        subiendo = false;
-
-    if (y() >= limiteInferior)
-        subiendo = true;
+    puedeDisparar = v;
 }
 
+void avionenemigo::iniciarPos(int x, int y)
+{
+    setPos(x, y);
+}
 
+void avionenemigo::moverVertical()
+{
+    if (subiendo) setY(y() - velocidad);
+    else          setY(y() + velocidad);
 
-// DISPARO ALEATORIO
+    if (y() <= limiteSuperior) subiendo = false;
+    if (y() >= limiteInferior) subiendo = true;
+}
+
+//  DISPARO
 
 void avionenemigo::intentarDisparar()
 {
-    int prob = rand() % 100;
+    if (!puedeDisparar) return;
 
-    if (prob < 10)  // 10%
+    int p = rand() % 100;
+
+    if (p < 60)
     {
         mostrarAtaque();
-        qDebug() << "El avión enemigo dispara!";
 
+        proyectil *b = new proyectil(false, 50);
+        b->setPos(x(), y() + pixmap().height()/2);
 
+        scene()->addItem(b);
     }
 }
 
-
-// Daño
+//  VIDA
 void avionenemigo::recibirDanio(int dano)
 {
     vida -= dano;
     if (vida < 0) vida = 0;
 
-    float porcentaje = (float)vida / vidaMax;
-    barraVida->setRect(0, 0, 120 * porcentaje, 10);
-
-    qDebug() << "AVION VIDA =" << vida;
+    float pct = (float)vida / vidaMax;
+    barraVida->setRect(0, 0, 120 * pct, 10);
 
     if (vida == 0)
-        hide();
+    {
+        // Explosión
+        Explosion *e = new Explosion(":/esplocion2/Jet Explosion in Midair.png", 1500);
+        e->setPos(x(), y());
+        scene()->addItem(e);
+
+
+        puedeDisparar = false;
+        setEnabled(false);
+        setVisible(false);
+        setPixmap(QPixmap());
+
+
+        timerAtaque->stop();
+        timerMovimiento->stop();
+        timerDisparo->stop();
+
+
+        setFlag(ItemHasNoContents, true);
+        setAcceptedMouseButtons(Qt::NoButton);
+    }
 }

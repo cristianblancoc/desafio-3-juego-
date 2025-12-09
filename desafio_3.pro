@@ -16,6 +16,7 @@ SOURCES += \
     spritesnivel1.cpp
 
 HEADERS += \
+    Explosion.h \
     avionenemigo.h \
     juego.h \
     proyectil.h \
@@ -30,7 +31,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
+    esplocion2.qrc \
+    esplocionbalas.qrc \
     fondo.qrc \
+    splocion1.qrc \
     spriteavionata.qrc \
     spriteavionnormal.qrc \
     spritetan.qrc \
