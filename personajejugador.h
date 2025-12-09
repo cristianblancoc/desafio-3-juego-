@@ -2,6 +2,7 @@
 #define PERSONAJEJUGADOR_H
 
 #include "Entidad.h"
+#include <QPixmap>
 
 class PersonajeJugador : public Entidad
 {
@@ -38,6 +39,14 @@ public:
 
     void establecerEnSuelo(bool enSuelo);
 
+    void establecerSprites(
+        const QString &estatico,
+        const QString &correrDer,
+        const QString &correrIzq,
+        const QString &saltarDer,
+        const QString &saltarIzq
+        );
+
 signals:
     void proyectilDisparado(int direccion, float x, float y);
 
@@ -50,6 +59,12 @@ private:
     int   direccion;
     int   cooldownDisparo;
     int   contadorCooldown;
+
+    QPixmap spriteEstatico;
+    QPixmap spriteCorrerDerecha;
+    QPixmap spriteCorrerIzquierda;
+    QPixmap spriteSaltarDerecha;
+    QPixmap spriteSaltarIzquierda;
 
     void actualizarModoNivel1();
     void actualizarModoNivel2();

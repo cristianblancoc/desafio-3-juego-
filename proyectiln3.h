@@ -1,14 +1,14 @@
-#ifndef PROYECTIL_H
-#define PROYECTIL_H
+#ifndef PROYECTILN3_H
+#define PROYECTILN3_H
 
 #include "Entidad.h"
 
-class Proyectil : public Entidad
+class ProyectilN3 : public Entidad
 {
     Q_OBJECT
 
 public:
-    explicit Proyectil(int direccionDisparo,
+    explicit ProyectilN3(int direccionDisparo,
                        float xInicial,
                        float yInicial,
                        float velocidad,
@@ -20,6 +20,8 @@ public:
     float obtenerDano() const;
     void establecerDano(float nuevoDano);
 
+    void establecerSprite(const QString &ruta);
+
 private:
     int direccion;
     float velocidadProyectil;
@@ -27,4 +29,4 @@ private:
     bool activo;
 };
 
-#endif // PROYECTIL_H
+#endif // PROYECTILN3_H

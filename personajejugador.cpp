@@ -14,6 +14,21 @@ PersonajeJugador::PersonajeJugador(QGraphicsItem *parent)
 {
 }
 
+void PersonajeJugador::establecerSprites(
+    const QString &estatico,
+    const QString &correrDer,
+    const QString &correrIzq,
+    const QString &saltarDer,
+    const QString &saltarIzq
+    ){
+    spriteEstatico        = QPixmap(estatico);
+    spriteCorrerDerecha   = QPixmap(correrDer);
+    spriteCorrerIzquierda = QPixmap(correrIzq);
+    spriteSaltarDerecha   = QPixmap(saltarDer);
+    spriteSaltarIzquierda = QPixmap(saltarIzq);
+
+    setPixmap(spriteEstatico.scaled(100,100));
+}
 void PersonajeJugador::establecerModoMovimiento(ModoMovimiento nuevoModo)
 {
     modoMovimiento = nuevoModo;
@@ -48,17 +63,27 @@ void PersonajeJugador::moverIzquierda()
 {
     velocidadX = -velocidadMovimiento;
     direccion = -1;
+
+    if (!enElAire && !spriteCorrerIzquierda.isNull())
+        setPixmap(spriteCorrerIzquierda.scaled(100,100));
 }
 
 void PersonajeJugador::moverDerecha()
 {
     velocidadX = velocidadMovimiento;
     direccion = 1;
+
+
+    if (!enElAire && !spriteCorrerDerecha.isNull())
+        setPixmap(spriteCorrerDerecha.scaled(100,100));
 }
 
 void PersonajeJugador::detenerMovimientoHorizontal()
 {
     velocidadX = 0.0f;
+
+    if (!enElAire && !spriteEstatico.isNull())
+        setPixmap(spriteEstatico.scaled(100,100));
 }
 
 void PersonajeJugador::saltar()
@@ -68,6 +93,17 @@ void PersonajeJugador::saltar()
 
     velocidadY = fuerzaSalto;
     enElAire = true;
+
+    if (direccion == 1)
+    {
+        if (!spriteSaltarDerecha.isNull())
+        setPixmap(spriteSaltarDerecha.scaled(100,100));
+    }
+    else
+    {
+        if (!spriteSaltarIzquierda.isNull())
+        setPixmap(spriteSaltarIzquierda.scaled(100,100));
+    }
 }
 
 int PersonajeJugador::obtenerDireccion() const
@@ -96,7 +132,38 @@ void PersonajeJugador::actualizarMovimiento()
 
 void PersonajeJugador::actualizarModoNivel1()
 {
+
+    if (enElAire)
+    {
+        aplicarGravedad(0.5f);
+    }
+
     aplicarMovimiento();
+
+    if (enElAire)
+    {
+        if (direccion == 1)
+            setPixmap(spriteSaltarDerecha.scaled(100,100));
+        else
+            setPixmap(spriteSaltarIzquierda.scaled(100,100));
+    }
+    else
+    {
+
+        if (velocidadX == 0.0f)
+        {
+            setPixmap(spriteEstatico.scaled(100,100));
+        }
+        else if (velocidadX > 0.0f)
+        {
+            setPixmap(spriteCorrerDerecha.scaled(100,100));
+        }
+        else
+        {
+            setPixmap(spriteCorrerIzquierda.scaled(100,100));
+        }
+    }
+
 }
 
 void PersonajeJugador::actualizarModoNivel2()
@@ -146,4 +213,20 @@ void PersonajeJugador::disparar()
 void PersonajeJugador::establecerEnSuelo(bool enSuelo)
 {
     enElAire = !enSuelo;
+
+    if (enSuelo)
+    {
+        if (velocidadX == 0.0f)
+        {
+            setPixmap(spriteEstatico.scaled(100,100));
+        }
+        else if (direccion == 1)
+        {
+            setPixmap(spriteCorrerDerecha.scaled(100,100));
+        }
+        else
+        {
+            setPixmap(spriteCorrerIzquierda.scaled(100,100));
+        }
+    }
 }

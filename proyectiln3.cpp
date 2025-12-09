@@ -1,8 +1,8 @@
-#include "Proyectil.h"
+#include "proyectiln3.h"
 #include "Hitbox.h"
 #include <QPixmap>
 
-Proyectil::Proyectil(int direccionDisparo,
+ProyectilN3::ProyectilN3(int direccionDisparo,
                      float xInicial,
                      float yInicial,
                      float velocidad,
@@ -27,7 +27,18 @@ Proyectil::Proyectil(int direccionDisparo,
     asignarHitbox(hb);
 }
 
-void Proyectil::actualizarProyectil()
+void ProyectilN3::establecerSprite(const QString &ruta)
+{
+    QPixmap img(ruta);
+    if (!img.isNull())
+    {
+        setPixmap(img.scaled(20, 10,
+                             Qt::IgnoreAspectRatio,
+                             Qt::SmoothTransformation));
+    }
+}
+
+void ProyectilN3::actualizarProyectil()
 {
     if (!activo)
         return;
@@ -41,17 +52,17 @@ void Proyectil::actualizarProyectil()
     }
 }
 
-bool Proyectil::estaActivo() const
+bool ProyectilN3::estaActivo() const
 {
     return activo;
 }
 
-float Proyectil::obtenerDano() const
+float ProyectilN3::obtenerDano() const
 {
     return danoImpacto;
 }
 
-void Proyectil::establecerDano(float nuevoDano)
+void ProyectilN3::establecerDano(float nuevoDano)
 {
     danoImpacto = nuevoDano;
 }
