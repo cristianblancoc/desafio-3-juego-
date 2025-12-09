@@ -65,8 +65,8 @@ void Nivel::prepararCuentaRegresiva(int segundos)
         addItem(textoCuentaRegresiva);
         QFont fuente("Arial", 24, QFont::Bold);
         textoCuentaRegresiva->setFont(fuente);
-        textoCuentaRegresiva->setDefaultTextColor(Qt::red);
-        textoCuentaRegresiva->setPos(300, 50);
+        textoCuentaRegresiva->setDefaultTextColor(Qt::white);
+        textoCuentaRegresiva->setPos(300, 150);
     }
 
     textoCuentaRegresiva->setPlainText(
@@ -122,8 +122,11 @@ void Nivel::limitarEntidadEnX(Entidad *entidad, float anchoSprite)
     QRectF rect = sceneRect();
     QPointF pos = entidad->obtenerPosicion();
 
-    float minX = rect.left();
-    float maxX = rect.right() - anchoSprite;
+    const float margenIzq = 10.0f;
+    const float margenDer = 10.0f;
+
+    float minX = rect.left() + margenIzq;
+    float maxX = rect.right() - anchoSprite - margenDer;
 
     if (pos.x() < minX)
         pos.setX(minX);
@@ -132,6 +135,7 @@ void Nivel::limitarEntidadEnX(Entidad *entidad, float anchoSprite)
 
     entidad->establecerPosicion(pos.x(), pos.y());
 }
+
 
 void Nivel::marcarVictoria()
 {

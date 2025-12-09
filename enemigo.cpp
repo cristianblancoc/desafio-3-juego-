@@ -8,6 +8,7 @@ Enemigo::Enemigo(QGraphicsItem *parent)
     , sueloY(500)
     , eliminado(false)
     , gravedad(0.5f)
+    , fuerzaSalto(-10.0f)
 {
 }
 
@@ -68,4 +69,20 @@ void Enemigo::marcarEliminado()
 bool Enemigo::estaEliminado() const
 {
     return eliminado;
+}
+
+void Enemigo::establecerFuerzaSalto(float nuevoFuerzaSalto)
+{
+    fuerzaSalto = nuevoFuerzaSalto;
+}
+
+void Enemigo::saltar()
+{
+    if (eliminado)
+        return;
+
+    if (posicionY >= sueloY - 0.1f)
+    {
+        velocidadY = fuerzaSalto;
+    }
 }
