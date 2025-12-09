@@ -58,14 +58,14 @@ juego::juego(QWidget *parent)
     ui->graphicsView->setFocusPolicy(Qt::NoFocus);
     setFocus();
 
-    QPixmap fin(":/paisaje/casasdestruidas.png");
-    fin = fin.scaled(500, 300, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap fin(":/paisaje/fonnnnn.png");
+    fin = fin.scaled(1000, 700, Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
     finalNivel = new QGraphicsPixmapItem(fin);
 
     // Lo ponemos al final del campo (extremo derecho)
-    finalNivel->setPos(escena->width() - 600, H - 350);
-    finalNivel->setZValue(20); // por encima del fondo
+    finalNivel->setPos(escena->width() - 1000, H - 750);
+    finalNivel->setZValue(30); // por encima del fondo
 
     finalNivel->setVisible(false);
     escena->addItem(finalNivel);
