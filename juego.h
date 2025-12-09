@@ -42,10 +42,14 @@ private:
 
     bool jugadorEsUcrania;   // true = Ucrania, false = Rusia
 
+    QPushButton *btnReiniciar;
+
     void crearSeleccionBando();
 
     void manejarNivelGanado(int numeroNivel);
     void manejarNivelPerdido(int numeroNivel);
+
+    void reiniciarJuegoCompleto();
 };
 
 #endif // JUEGO_H

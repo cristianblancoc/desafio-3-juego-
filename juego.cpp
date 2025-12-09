@@ -20,7 +20,8 @@ juego::juego(QWidget *parent)
     , lblTituloSeleccion(nullptr)
     , lblUcrania(nullptr)
     , lblRusia(nullptr)
-    , jugadorEsUcrania(true)    // por defecto
+    , jugadorEsUcrania(true)
+    , btnReiniciar(nullptr)
 {
     ui->setupUi(this);
 
@@ -34,6 +35,21 @@ juego::juego(QWidget *parent)
     vista->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     vista->setRenderHint(QPainter::Antialiasing);
     vista->setFocusPolicy(Qt::StrongFocus);
+
+    btnReiniciar = new QPushButton("Reiniciar", ui->centralwidget);
+    btnReiniciar->setGeometry(anchoVentana - 120, 10, 100, 30);
+    btnReiniciar->setStyleSheet(
+        "background-color:#c62828;"
+        "color:white;"
+        "font-weight:bold;"
+        "border-radius:4px;"
+        );
+    btnReiniciar->setFocusPolicy(Qt::NoFocus);
+
+    connect(btnReiniciar, &QPushButton::clicked, this, [this]()
+            {
+                reiniciarJuegoCompleto();
+            });
 
     // Pantalla de selección de país (overlay que tapa todo)
     crearSeleccionBando();
@@ -206,4 +222,25 @@ void juego::crearSeleccionBando()
                 overlaySeleccion->hide();
                 cargarNivel(1);
             });
+}
+
+
+void juego::reiniciarJuegoCompleto()
+{
+    if (nivelActual)
+    {
+        nivelActual->disconnect(this);
+        vista->setScene(nullptr);
+        nivelActual->deleteLater();
+        nivelActual = nullptr;
+    }
+
+    jugadorEsUcrania = true;
+
+    if (overlaySeleccion)
+    {
+        overlaySeleccion->show();
+        overlaySeleccion->raise();
+    }
+
 }
