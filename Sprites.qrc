@@ -33,5 +33,6 @@
         <file>Sprite nivel3/Victoria_Ukrania.png</file>
         <file>Sprite nivel3/Bandera_Russia.png</file>
         <file>Sprite nivel3/Bandera_Ucrania.png</file>
+        <file>Sprite nivel1/Musica_juego.mp3</file>
     </qresource>
 </RCC>

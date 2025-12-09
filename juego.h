@@ -5,6 +5,9 @@
 #include <QPushButton>
 #include <QGraphicsView>
 #include <QLabel>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
 
 #include "Nivel.h"
 #include "Nivel1.h"
@@ -31,6 +34,9 @@ private:
 
     int anchoVentana;
     int altoVentana;
+
+    QMediaPlayer *playerMusica;
+    QAudioOutput *salidaAudio;
 
     // Overlay de selección de país
     QWidget *overlaySeleccion;

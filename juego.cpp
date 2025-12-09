@@ -25,6 +25,17 @@ juego::juego(QWidget *parent)
 {
     ui->setupUi(this);
 
+    playerMusica = new QMediaPlayer(this);
+    salidaAudio = new QAudioOutput(this);
+
+    playerMusica->setAudioOutput(salidaAudio);
+    salidaAudio->setVolume(0.4);  // 40% de volumen
+
+    playerMusica->setSource(QUrl("qrc:/Sprite nivel1/Musica_juego.mp3"));
+    playerMusica->setLoops(QMediaPlayer::Infinite);
+
+    playerMusica->play();
+
     setWindowTitle("Juego - Sistema de Niveles");
     setFixedSize(anchoVentana, altoVentana);
 
