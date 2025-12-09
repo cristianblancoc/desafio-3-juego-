@@ -9,11 +9,33 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    enemigo.cpp \
+    enemigosoldadoia.cpp \
+    entidad.cpp \
+    hitbox.cpp \
     main.cpp \
-    juego.cpp
+    juego.cpp \
+    nivel.cpp \
+    nivel1.cpp \
+    nivel3.cpp \
+    obstaculo.cpp \
+    personajejugador.cpp \
+    proyectiln3.cpp \
+    soldado.cpp
 
 HEADERS += \
-    juego.h
+    enemigo.h \
+    enemigosoldadoia.h \
+    entidad.h \
+    hitbox.h \
+    juego.h \
+    nivel.h \
+    nivel1.h \
+    nivel3.h \
+    obstaculo.h \
+    personajejugador.h \
+    proyectiln3.h \
+    soldado.h
 
 FORMS += \
     juego.ui
@@ -22,3 +44,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    Sprites.qrc
