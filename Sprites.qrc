@@ -1,0 +1,37 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Sprite nivel1/Comandante Ukrania.png</file>
+        <file>Sprite nivel1/Comandante Russia.png</file>
+        <file>Sprite nivel1/Fondo nivel 1 Ukrania.png</file>
+        <file>Sprite nivel1/Fondo nivel1 Russia.png</file>
+        <file>Sprite nivel1/Mensaje.png</file>
+        <file>Sprite nivel1/Mina.png</file>
+        <file>Sprite nivel1/Soldado Russia Corriendo Derecha.png</file>
+        <file>Sprite nivel1/Soldado Russia Corriendo Izquierda.png</file>
+        <file>Sprite nivel1/Soldado Russia Estatico.png</file>
+        <file>Sprite nivel1/Soldado Russia Saltando Derecha.png</file>
+        <file>Sprite nivel1/Soldado Russia Saltando Izquierda.png</file>
+        <file>Sprite nivel1/Soldado Ukrania Corriendo derecha.png</file>
+        <file>Sprite nivel1/Soldado Ukrania Corriendo izquierda.png</file>
+        <file>Sprite nivel1/Soldado Ukrania Estatico.png</file>
+        <file>Sprite nivel1/Soldado Ukrania Saltando derecha.png</file>
+        <file>Sprite nivel1/Soldado Ukrania Saltando izquierda.png</file>
+        <file>Sprite nivel1/Tanque Russia.png</file>
+        <file>Sprite nivel1/Tanque Ukrania.png</file>
+        <file>Sprite nivel1/Tiempo.png</file>
+        <file>Sprite nivel3/Bala derecha.png</file>
+        <file>Sprite nivel3/Bala izquierda.png</file>
+        <file>Sprite nivel3/Soldado Russia Disparando Derecha.png</file>
+        <file>Sprite nivel3/Soldado Russia Disparando Izquierda.png</file>
+        <file>Sprite nivel3/Soldado Ukrania disparando derecha.png</file>
+        <file>Sprite nivel3/Soldado Ukrania disparando izquierda.png</file>
+        <file>Sprite nivel3/Tiempo.png</file>
+        <file>Sprite nivel3/Fondo_nivel3.png</file>
+        <file>Sprite nivel3/Derrota_Russia.png</file>
+        <file>Sprite nivel3/Derrota_Ukrania.png</file>
+        <file>Sprite nivel3/Victoria_Russia.png</file>
+        <file>Sprite nivel3/Victoria_Ukrania.png</file>
+        <file>Sprite nivel3/Bandera_Russia.png</file>
+        <file>Sprite nivel3/Bandera_Ucrania.png</file>
+    </qresource>
+</RCC>
