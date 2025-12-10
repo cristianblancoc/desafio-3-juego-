@@ -19,6 +19,9 @@ public:
 
     int vida = 150;
     int vidaMax = 300;
+    void manejarTeclaPresionada(QKeyEvent *evento);
+    void manejarTeclaLiberada(QKeyEvent *evento);
+
 
 private:
     QPixmap imgNormal;

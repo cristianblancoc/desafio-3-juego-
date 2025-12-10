@@ -26,11 +26,12 @@ public:
     int vida = 250;
     int vidaMax = 250;
     bool puedeDisparar = false;
+  void intentarDisparar();
 
 private slots:
     void volverNormal();
     void moverVertical();
-    void intentarDisparar();
+
 
 private:
     //  Imágenes
@@ -50,7 +51,7 @@ private:
     bool subiendo = true;
     int velocidad = 2;
     int limiteSuperior = 40;
-    int limiteInferior = 600;
+    int limiteInferior = 500;
 
     //  Mostrar estados
     void mostrarNormal();

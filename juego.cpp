@@ -1,152 +1,236 @@
 #include "juego.h"
 #include "ui_juego.h"
 #include "proyectil.h"
+#include "Nivel2.h"
 
 #include <QKeyEvent>
 
+#include <QPainter>
+#include <QDebug>
+#include <QTimer>
+#include <QIcon>
+#include <QSize>
+
+
+
 juego::juego(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::juego)
+    : QMainWindow(parent)
+    , ui(new Ui::juego)
+    , vista(new QGraphicsView(this))
+    , nivelActual(nullptr)
+    , anchoVentana(820)
+    , altoVentana(620)
+    , overlaySeleccion(nullptr)
+    , btnUcrania(nullptr)
+    , btnRusia(nullptr)
+    , lblTituloSeleccion(nullptr)
+    , lblUcrania(nullptr)
+    , lblRusia(nullptr)
+    , jugadorEsUcrania(true)
 {
     ui->setupUi(this);
 
-    int W = ui->graphicsView->width();
-    int H = ui->graphicsView->height();
+    setWindowTitle("Juego - Sistema de Niveles");
+    setFixedSize(anchoVentana, altoVentana);
 
-    escena = new QGraphicsScene(0, 0, W*3, H);
-    ui->graphicsView->setScene(escena);
+    vista->setParent(ui->centralwidget);
+    vista->setGeometry(0, 0, anchoVentana, altoVentana);
 
-    // Fondo
-    QPixmap f(":/paisaje/Fondo_Nivel2.png");
-    f = f.scaled(W*3, H, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    fondo = new QGraphicsPixmapItem(f);
-    escena->addItem(fondo);
+    vista->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    vista->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    vista->setRenderHint(QPainter::Antialiasing);
+    vista->setFocusPolicy(Qt::StrongFocus);
 
-    // Tanque
-    tanque = new spritesnivel1();
-    tanque->setPos(100, H - 200);
-    tanque->setZValue(10);
-    escena->addItem(tanque);
-
-
-
-
-    // AVIÓN 1
-    avion1 = new avionenemigo();
-    avion1->activarDisparo(true);
-    avion1->iniciarPos(1500, 200);
-    escena->addItem(avion1);
-
-    // AVIÓN 2
-    avion2 = new avionenemigo();
-    avion2->setVisible(false);
-    avion2->activarDisparo(false);
-    avion2->iniciarPos(1700, 120);
-    escena->addItem(avion2);
-
-    // AVIÓN 3
-    avion3 = new avionenemigo();
-    avion3->setVisible(false);
-    avion3->activarDisparo(false);
-    avion3->iniciarPos(1900, 250);
-    escena->addItem(avion3);
-
-
-    // Actualización
-    QTimer *t = new QTimer(this);
-    connect(t, &QTimer::timeout, this, &juego::actualizar);
-    t->start(16);
-    ui->graphicsView->setFocusPolicy(Qt::NoFocus);
-    setFocus();
-
-    QPixmap fin(":/paisaje/fonnnnn.png");
-    fin = fin.scaled(1000, 700, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-    finalNivel = new QGraphicsPixmapItem(fin);
-
-    // Lo ponemos al final del campo (extremo derecho)
-    finalNivel->setPos(escena->width() - 1000, H - 750);
-    finalNivel->setZValue(30); // por encima del fondo
-
-    finalNivel->setVisible(false);
-    escena->addItem(finalNivel);
-}
-
-void juego::actualizar()
-{
-    ui->graphicsView->centerOn(tanque);
-    revisarMuertes();
-    if (nivelTerminado)
-    {
-        if (tanque->collidesWithItem(finalNivel))
-        {
-            qDebug() << "¡Nivel completado!";
-        }
-    }
-}
-
-void juego::revisarMuertes()
-{
-    // Si muere el avión 1
-    if (avion1->vida <= 0 && !avion2->estaVisible())
-    {
-        avion2->setVisible(true);
-        avion2->activarDisparo(true);
-
-    }
-
-    // Si muere el avión 2
-    if (avion2->vida <= 0 && !avion3->estaVisible())
-    {
-        avion3->setVisible(true);
-        avion3->activarDisparo(true);
-    }
-
-    if (avion3->vida <= 0 && !nivelTerminado)
-    {
-        nivelTerminado = true;
-        finalNivel->setVisible(true);
-        qDebug() << "Todos los aviones destruidos. ¡Aparece el final del nivel!";
-    }
-
-}
-
-void juego::keyPressEvent(QKeyEvent *e)
-{
-    int dx = 0, dy = 0;
-
-    if (e->key() == Qt::Key_Left)  dx = -10;
-    if (e->key() == Qt::Key_Right) dx = 10;
-    if (e->key() == Qt::Key_Up)    dy = -10;
-    if (e->key() == Qt::Key_Down)  dy = 10;
-
-    qreal nx = tanque->x() + dx;
-    qreal ny = tanque->y() + dy;
-
-    qreal minX = 0;
-    qreal maxX = escena->width() - tanque->pixmap().width();
-    qreal minY = 0;
-    qreal maxY = escena->height() - tanque->pixmap().height();
-
-    if (nx < minX) nx = minX;
-    if (nx > maxX) nx = maxX;
-    if (ny < minY) ny = minY;
-    if (ny > maxY) ny = maxY;
-
-    tanque->setPos(nx, ny);
-
-    if (e->key() == Qt::Key_Space)
-    {
-        tanque->mostrarAtaque();
-
-        proyectil *b = new proyectil(true, 50);
-        b->setPos(tanque->x() + tanque->pixmap().width(),
-                  tanque->y() + tanque->pixmap().height()/2);
-
-        escena->addItem(b);
-    }
+    // Pantalla de selección de país
+    crearSeleccionBando();
 }
 
 juego::~juego()
 {
     delete ui;
 }
+
+void juego::establecerNivel(Nivel *nuevoNivel)
+{
+    if (!nuevoNivel)
+        return;
+
+    if (nivelActual)
+        nivelActual->disconnect(this);
+
+    nivelActual = nuevoNivel;
+
+    connect(nivelActual, &Nivel::nivelGanado,
+            this, &juego::manejarNivelGanado);
+    connect(nivelActual, &Nivel::nivelPerdido,
+            this, &juego::manejarNivelPerdido);
+
+    vista->setScene(nivelActual);
+    vista->setSceneRect(nivelActual->sceneRect());
+     vista->setFocusPolicy(Qt::StrongFocus);
+    vista->setFocus();
+    this->setFocusPolicy(Qt::NoFocus);
+}
+
+void juego::iniciarJuego()
+{
+    if (nivelActual)
+    {
+        nivelActual->iniciarNivel();
+        nivelActual->iniciarTemporizador();
+    }
+}
+
+void juego::cargarNivel(int numeroNivel)
+{
+    if (nivelActual)
+    {
+        nivelActual->disconnect(this);
+        nivelActual->deleteLater();
+        nivelActual = nullptr;
+    }
+
+    switch (numeroNivel)
+    {
+    case 1:
+    {
+        auto *n1 = new Nivel1(this);
+        n1->establecerBandoJugadorUcrania(jugadorEsUcrania);
+        establecerNivel(n1);
+        break;
+    }
+    case 2:
+    {
+
+        auto *n2 = new Nivel2(this);
+        n2->setVista(vista);
+        establecerNivel(n2);
+        break;
+    }
+    case 3:
+    {
+        auto *n3 = new Nivel3(this);
+        n3->establecerBandoJugadorUcrania(jugadorEsUcrania);
+        establecerNivel(n3);
+        break;
+    }
+
+    default:
+        qDebug() << "Número de nivel desconocido:" << numeroNivel;
+        return;
+    }
+
+    iniciarJuego();
+}
+
+void juego::manejarNivelGanado(int numeroNivel)
+{
+    if (numeroNivel == 1)
+    {
+        qDebug() << "Nivel 1 ganado → cargando Nivel 2";
+        QTimer::singleShot(0, this, [this]() {
+            cargarNivel(2);
+        });
+    }
+    else if (numeroNivel == 2)
+    {
+        qDebug() << "Nivel 2 ganado → cargando Nivel 3";
+        QTimer::singleShot(0, this, [this]() {
+            cargarNivel(3);
+        });
+    }
+    else if (numeroNivel == 3)
+    {
+        qDebug() << "Juego completado. ¡Ganaste todo!";
+    }
+}
+
+void juego::manejarNivelPerdido(int numeroNivel)
+{
+    qDebug() << "Nivel" << numeroNivel << "perdido. Reiniciando.";
+
+    QTimer::singleShot(0, this, [this, numeroNivel]() {
+        cargarNivel(numeroNivel);
+    });
+}
+
+void juego::crearSeleccionBando()
+{
+    overlaySeleccion = new QWidget(ui->centralwidget);
+    overlaySeleccion->setGeometry(0, 0, anchoVentana, altoVentana);
+    overlaySeleccion->setStyleSheet("background-color: white;");
+    overlaySeleccion->show();
+
+    lblTituloSeleccion = new QLabel("Elige un país", overlaySeleccion);
+    lblTituloSeleccion->setAlignment(Qt::AlignCenter);
+    lblTituloSeleccion->setStyleSheet("color: black; font-size: 28px; font-weight: bold;");
+    lblTituloSeleccion->setFixedSize(anchoVentana, 50);
+    lblTituloSeleccion->move(0, 80);
+
+    btnUcrania = new QPushButton(overlaySeleccion);
+    btnRusia   = new QPushButton(overlaySeleccion);
+
+    btnUcrania->setIcon(QIcon(":/Sprite nivel3/Bandera_Ucrania.png"));
+    btnRusia->setIcon(QIcon(":/Sprite nivel3/Bandera_Russia.png"));
+
+    btnUcrania->setIconSize(QSize(150, 150));
+    btnRusia->setIconSize(QSize(150, 150));
+
+    btnUcrania->setFixedSize(170, 170);
+    btnRusia->setFixedSize(170, 170);
+
+    int y = 260;
+    btnUcrania->move(220, y);
+    btnRusia->move(440, y);
+
+    QString estilo =
+        "background:#e0e0e0;"
+        "border:2px solid #aaaaaa;"
+        "border-radius:4px;";
+
+    btnUcrania->setStyleSheet(estilo);
+    btnRusia->setStyleSheet(estilo);
+
+    lblUcrania = new QLabel("Ucrania", overlaySeleccion);
+    lblRusia   = new QLabel("Rusia",   overlaySeleccion);
+
+    lblUcrania->setAlignment(Qt::AlignCenter);
+    lblRusia->setAlignment(Qt::AlignCenter);
+
+    lblUcrania->setStyleSheet("color: black; font-size: 18px; font-weight: bold;");
+    lblRusia->setStyleSheet("color: black; font-size: 18px; font-weight: bold;");
+
+    lblUcrania->setFixedSize(170, 30);
+    lblRusia->setFixedSize(170, 30);
+
+    lblUcrania->move(220, y - 40);
+    lblRusia->move(440, y - 40);
+
+    connect(btnUcrania, &QPushButton::clicked, this, [this]()
+            {
+                jugadorEsUcrania = true;
+                overlaySeleccion->hide();
+                cargarNivel(1);
+            });
+
+    connect(btnRusia, &QPushButton::clicked, this, [this]()
+            {
+                jugadorEsUcrania = false;
+                overlaySeleccion->hide();
+                cargarNivel(1);
+            });
+
+}
+void juego::keyPressEvent(QKeyEvent *e)
+{
+    if (!nivelActual) return;
+
+    if (auto n2 = dynamic_cast<Nivel2*>(nivelActual))
+    {
+        n2->moverTanqueConTecla(e);
+        return;
+    }
+}
+
+
+
