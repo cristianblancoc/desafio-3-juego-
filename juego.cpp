@@ -27,8 +27,22 @@ juego::juego(QWidget *parent)
     , lblUcrania(nullptr)
     , lblRusia(nullptr)
     , jugadorEsUcrania(true)
+
+    , btnReiniciar(nullptr)
+
 {
     ui->setupUi(this);
+
+    playerMusica = new QMediaPlayer(this);
+    salidaAudio = new QAudioOutput(this);
+
+    playerMusica->setAudioOutput(salidaAudio);
+    salidaAudio->setVolume(0.4);  // 40% de volumen
+
+    playerMusica->setSource(QUrl("qrc:/Sprite nivel1/Musica_juego.mp3"));
+    playerMusica->setLoops(QMediaPlayer::Infinite);
+
+    playerMusica->play();
 
     setWindowTitle("Juego - Sistema de Niveles");
     setFixedSize(anchoVentana, altoVentana);
@@ -41,7 +55,26 @@ juego::juego(QWidget *parent)
     vista->setRenderHint(QPainter::Antialiasing);
     vista->setFocusPolicy(Qt::StrongFocus);
 
+
     // Pantalla de selección de país
+
+    btnReiniciar = new QPushButton("Reiniciar", ui->centralwidget);
+    btnReiniciar->setGeometry(anchoVentana - 120, 10, 100, 30);
+    btnReiniciar->setStyleSheet(
+        "background-color:#c62828;"
+        "color:white;"
+        "font-weight:bold;"
+        "border-radius:4px;"
+        );
+    btnReiniciar->setFocusPolicy(Qt::NoFocus);
+
+    connect(btnReiniciar, &QPushButton::clicked, this, [this]()
+            {
+                reiniciarJuegoCompleto();
+            });
+
+    // Pantalla de selección de país
+
     crearSeleccionBando();
 }
 
@@ -221,6 +254,7 @@ void juego::crearSeleccionBando()
             });
 
 }
+
 void juego::keyPressEvent(QKeyEvent *e)
 {
     if (!nivelActual) return;
@@ -233,4 +267,27 @@ void juego::keyPressEvent(QKeyEvent *e)
 }
 
 
+
+
+
+
+void juego::reiniciarJuegoCompleto()
+{
+    if (nivelActual)
+    {
+        nivelActual->disconnect(this);
+        vista->setScene(nullptr);
+        nivelActual->deleteLater();
+        nivelActual = nullptr;
+    }
+
+    jugadorEsUcrania = true;
+
+    if (overlaySeleccion)
+    {
+        overlaySeleccion->show();
+        overlaySeleccion->raise();
+    }
+
+}
 

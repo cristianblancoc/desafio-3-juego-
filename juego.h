@@ -12,6 +12,9 @@
 #include <QPushButton>
 #include <QGraphicsView>
 #include <QLabel>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
 
 #include "Nivel.h"
 #include "Nivel1.h"
@@ -50,6 +53,9 @@ private:
     int anchoVentana;
     int altoVentana;
 
+    QMediaPlayer *playerMusica;
+    QAudioOutput *salidaAudio;
+
     // Overlay de selección de país
     QWidget *overlaySeleccion;
     QPushButton *btnUcrania;
@@ -60,6 +66,8 @@ private:
 
     bool jugadorEsUcrania;   // true = Ucrania, false = Rusia
 
+    QPushButton *btnReiniciar;
+
     void crearSeleccionBando();
 
     void manejarNivelGanado(int numeroNivel);
@@ -67,6 +75,9 @@ private:
 
     Nivel* obtenerNivelActual() const;
     void cargarNivel(int numeroNivel);
+
+    void reiniciarJuegoCompleto();
+
 };
 
 #endif // JUEGO_H
